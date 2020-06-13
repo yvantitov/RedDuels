@@ -1,0 +1,16 @@
+name: RedDuels
+version: ${project.version}
+main: com.github.radagastthered.redduels.redduels.RedDuels
+
+commands:
+  duel:
+    description: Challenge another player to a duel
+    usage: /duel <player>
+  acceptduel:
+    description: Accept a duel offer from another player
+    usage: /acceptduel [player]
+    aliases: [aduel]
+  muteduel:
+    description: Mute incoming duel offers
+    usage: /muteduel
+    aliases: [mduel]

@@ -1,0 +1,27 @@
+# RedDuels config
+# Color strings are all from ChatColor variables
+
+# The tag that appears in chat when RedDuels-related messages are sent
+# e.g. [RedDuels] You have challenged playerX to a duel!
+ChatTag: "RedDuels"
+  TextColor: "AQUA"
+  BracketColor: "RED"
+  Enabled: true
+
+# Color of error messages
+ErrorColor: "DARK_RED"
+  Bold: false
+
+# Color of received duel offers
+DuelOfferReceivedColor: "DARK_RED"
+  Bold: true
+
+# Color of sent duel offers
+DuelOfferSentColor: "DARK_RED"
+  Bold: true
+
+# Color of supplementary information messages
+# e.g. reminding players how to accept duel requests when they are received
+InfoColor: "GREEN"
+  Bold: false
+  Enabled: true
