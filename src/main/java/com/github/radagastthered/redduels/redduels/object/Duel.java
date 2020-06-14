@@ -1,6 +1,10 @@
 package com.github.radagastthered.redduels.redduels.object;
 
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -107,6 +111,12 @@ public class Duel {
         // ensure the players are in adventure mode
         callingPlayer.setGameMode(GameMode.ADVENTURE);
         challengedPlayer.setGameMode(GameMode.ADVENTURE);
+        // create a boss bar for both players
+        // assign both players to see their respective boss bars
+        BossBar callingPlayerBossBar = Bukkit.createBossBar(callingPlayer.getDisplayName(), BarColor.RED, BarStyle.SOLID);
+        callingPlayerBossBar.addPlayer(challengedPlayer);
+        BossBar challengedPlayerBossBar = Bukkit.createBossBar(challengedPlayer.getDisplayName(), BarColor.RED, BarStyle.SOLID);
+        challengedPlayerBossBar.addPlayer(callingPlayer);
         // listeners
         data.plugin.getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler
@@ -116,12 +126,20 @@ public class Duel {
                     Player player = (Player) event.getEntity();
                     // check if it's a player we are interested in
                     if (player == callingPlayer || player == challengedPlayer) {
+                        // update the boss bar situation
+                        if (player == callingPlayer) {
+                            callingPlayerBossBar.setProgress(callingPlayer.getHealth() / callingPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                        } else {
+                            challengedPlayerBossBar.setProgress(challengedPlayer.getHealth() / challengedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                        }
                         // check if they are about to die
                         if (player.getHealth() - event.getDamage() < 1) {
                             // end the duel
                             loser = player;
                             victor = loser == callingPlayer ? challengedPlayer : callingPlayer;
                             HandlerList.unregisterAll(this);
+                            callingPlayerBossBar.removeAll();
+                            challengedPlayerBossBar.removeAll();
                             endDuel();
                             event.setCancelled(true);
                         }
