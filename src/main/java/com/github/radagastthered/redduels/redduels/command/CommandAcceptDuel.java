@@ -28,14 +28,14 @@ public class CommandAcceptDuel implements CommandExecutor {
         // ensure a player is calling this
         if (!(sender instanceof Player)) {
             logger.warning("/duel command was called by a non-player CommandSender");
-            sender.sendMessage(ChatColor.DARK_RED + "This command can only be used by players");
+            sender.sendMessage(data.cfg.formatError("This command can only be used by players"));
             return false;
         }
         // cast the sender to player
         Player callingPlayer = (Player) sender;
         // ensure the sender is not involved in an active duel already
         if (Duel.involvedInDuel(data.ongoingDuels, callingPlayer)) {
-            callingPlayer.sendMessage(ChatColor.BOLD + "" + ChatColor.DARK_RED + "You are already in an ongoing duel");
+            callingPlayer.sendMessage(data.cfg.formatError("You are already in an ongoing duel"));
             return true;
         }
         return acceptDuel(callingPlayer, args);
@@ -49,7 +49,7 @@ public class CommandAcceptDuel implements CommandExecutor {
         }
         // if there are no challenges for this player, inform them
         if (callingPlayers.size() == 0) {
-            challengedPlayer.sendMessage(ChatColor.DARK_RED + "Nobody has challenged you to a duel. Challenge others with: ");
+            challengedPlayer.sendMessage(data.cfg.formatError("Nobody has challenged you to a duel. Challenge others with: "));
             // returning false here will output usage to the chat
             return false;
         }
@@ -58,18 +58,18 @@ public class CommandAcceptDuel implements CommandExecutor {
         if (callingPlayers.size() >= 2) {
             // if no args at all have been provided, we tell the player this
             if (args.length == 0) {
-                challengedPlayer.sendMessage(ChatColor.GREEN + "You have been challenged by multiple players:");
+                challengedPlayer.sendMessage(data.cfg.formatError("You have been challenged by multiple players:"));
                 for (Player p : callingPlayers) {
-                    challengedPlayer.sendMessage(ChatColor.GREEN + " - " + p.getDisplayName());
+                    challengedPlayer.sendMessage(data.cfg.formatError(" - " + p.getDisplayName()));
                 }
-                challengedPlayer.sendMessage(ChatColor.GREEN + "You must specify whose challenge you wish to accept with /acceptduel <player>");
+                challengedPlayer.sendMessage(data.cfg.formatInfo("You must specify whose challenge you wish to accept with /acceptduel <player>"));
             }
             callingPlayer = Bukkit.getPlayer(args[0]);
             if (callingPlayer == null && !args[0].equals("")) {
-                challengedPlayer.sendMessage(ChatColor.DARK_RED + args[0] + " has not challenged you to a duel");
+                challengedPlayer.sendMessage(data.cfg.formatError(args[0] + " has not challenged you to a duel"));
                 return true;
             } else if (callingPlayer == null) {
-                challengedPlayer.sendMessage(ChatColor.DARK_RED + args[0] + " is not online");
+                challengedPlayer.sendMessage(data.cfg.formatError(args[0] + " is not online"));
                 return true;
             }
         } else {
@@ -81,21 +81,17 @@ public class CommandAcceptDuel implements CommandExecutor {
             logger.warning(challengedPlayer.getDisplayName() + " somehow accepted a non-existent duel");
             return false;
         } else {
-            beginDuel(duel);
+            // mark the duel as accepted
+            duel.accept();
+            // move duel from accepted to ongoing
+            data.queuedDuels.remove(duel);
+            data.ongoingDuels.add(duel);
+            // debugging
+            logger.info("Duel started between " + duel.getCallingPlayer().getDisplayName() + " and " + duel.getChallengedPlayer().getDisplayName());
+            // begin the duel!
+            // TODO: get a dueltype from a command rather than hard-coded
+            duel.beginDuel(data.cfg.duelTypes.get(0));
         }
         return true;
     }
-
-    private void beginDuel(Duel duel) {
-        // mark the duel as accepted
-        duel.accept();
-        // move duel from accepted to ongoing
-        data.queuedDuels.remove(duel);
-        data.ongoingDuels.add(duel);
-        // debugging
-        logger.info("Duel started between " + duel.getCallingPlayer().getDisplayName() + " and " + duel.getChallengedPlayer().getDisplayName());
-        duel.getCallingPlayer().sendMessage("DUEL STARTING!");
-        duel.getChallengedPlayer().sendMessage("DUEL STARTING!");
-    }
-
 }

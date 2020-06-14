@@ -1,27 +1,73 @@
 # RedDuels config
 # Color strings are all from ChatColor variables
 
+# DUEL TYPES CONFIGURATION
+DuelTypes:
+  Default:
+    World: 'Arena2'
+    Player1Spawn:
+      X: 6
+      Y: 5
+      Z: 0
+    Player2Spawn:
+      X: -8
+      Y: 5
+      Z: 0
+    Items:
+      DIAMOND_SWORD:
+        Number: 1
+        Enchantments:
+          KNOCKBACK: 3
+          DAMAGE_ALL: 4
+      BOW:
+        Number: 1
+        Enchantments:
+          ARROW_FIRE: 2
+      ARROW:
+        Number: 32
+    Armor:
+       DIAMOND_BOOTS:
+         Number: 1
+       DIAMOND_LEGGINGS:
+         Number: 1
+       DIAMOND_CHESTPLATE:
+         Number: 1
+       DIAMOND_HELMET:
+         Number: 1
+
+# MESSAGE CONFIGURATION
 # The tag that appears in chat when RedDuels-related messages are sent
 # e.g. [RedDuels] You have challenged playerX to a duel!
-ChatTag: "RedDuels"
-  TextColor: "AQUA"
-  BracketColor: "RED"
+ChatTag:
+  Text: 'RedDuels'
+  TextColor: 'AQUA'
+  BracketColor: 'RED'
   Enabled: true
 
-# Color of error messages
-ErrorColor: "DARK_RED"
+# Error messages
+ErrorMessage:
+  Color: 'DARK_RED'
   Bold: false
 
-# Color of received duel offers
-DuelOfferReceivedColor: "DARK_RED"
+# Received duel offers
+DuelOfferReceivedMessage:
+  Color: 'DARK_RED'
   Bold: true
 
-# Color of sent duel offers
-DuelOfferSentColor: "DARK_RED"
+# Sent duel offers
+DuelOfferSentMessage:
+  Color: 'DARK_RED'
   Bold: true
 
-# Color of supplementary information messages
+# Supplementary information messages
 # e.g. reminding players how to accept duel requests when they are received
-InfoColor: "GREEN"
+InfoMessage:
+  Color: 'GREEN'
   Bold: false
+  Enabled: true
+
+# Message that gets sent when a duel is completed
+DuelResolutionMessage:
+  Color: 'RED'
+  Bold: true
   Enabled: true

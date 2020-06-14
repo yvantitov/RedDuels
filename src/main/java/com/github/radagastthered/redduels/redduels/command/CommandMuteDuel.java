@@ -27,7 +27,7 @@ public class CommandMuteDuel implements CommandExecutor {
         // only players can use this command
         if(!(sender instanceof Player)) {
             logger.warning("/duelmute command was called by a non-player CommandSender");
-            sender.sendMessage(ChatColor.DARK_RED + "This command can only be used by players");
+            sender.sendMessage(data.cfg.formatError("This command can only be used by players"));
             return false;
         }
         // cast the sender to a player
@@ -35,12 +35,12 @@ public class CommandMuteDuel implements CommandExecutor {
         // remove the player if they are already there
         if (data.mutingPlayers.contains(player)) {
             data.mutingPlayers.remove(player);
-            player.sendMessage(ChatColor.GREEN + "You will now be notified of duel offers");
+            player.sendMessage(data.cfg.formatInfo("You will now be notified of duel offers"));
             return true;
         }
         // otherwise, add them to the list
         data.mutingPlayers.add(player);
-        player.sendMessage(ChatColor.GREEN + "You will no longer be notified of duel offers");
+        player.sendMessage(data.cfg.formatInfo("You will no longer be notified of duel offers"));
         return true;
     }
 

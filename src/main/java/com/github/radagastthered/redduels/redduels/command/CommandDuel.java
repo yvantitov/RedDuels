@@ -26,14 +26,14 @@ public class CommandDuel implements CommandExecutor {
         // ensure a player is calling this
         if (!(sender instanceof Player)) {
             logger.warning("/duel command was called by a non-player CommandSender");
-            sender.sendMessage(ChatColor.DARK_RED + "This command can only be used by players");
+            sender.sendMessage(data.cfg.formatError("This command can only be used by players"));
             return false;
         }
         // cast the sender to player
         Player callingPlayer = (Player) sender;
         // ensure the sender is not involved in an active duel already
         if (Duel.involvedInDuel(data.ongoingDuels, callingPlayer)) {
-            callingPlayer.sendMessage(ChatColor.BOLD + "" + ChatColor.DARK_RED + "You are already in an ongoing duel");
+            callingPlayer.sendMessage(data.cfg.formatError("You are already in an ongoing duel"));
             return true;
         }
         // initiates a duel
@@ -43,35 +43,37 @@ public class CommandDuel implements CommandExecutor {
     private boolean startDuel(Player callingPlayer, String[] args) {
         // there must be at least one argument
         if (args.length == 0) {
-            callingPlayer.sendMessage(ChatColor.DARK_RED + "You must specify a player you wish to challenge");
+            callingPlayer.sendMessage(data.cfg.formatError("You must specify a player you wish to challenge"));
             return true;
         }
         // a player cannot challenge themselves
         if (args[0].equals(callingPlayer.getDisplayName())) {
-            callingPlayer.sendMessage(ChatColor.DARK_RED + "You cannot challenge yourself to a duel");
+            callingPlayer.sendMessage(data.cfg.formatError("You cannot challenge yourself to a duel"));
             return true;
         }
         // try to get the other player
         Player challengedPlayer = Bukkit.getPlayer(args[0]);
         if (challengedPlayer == null) {
-            callingPlayer.sendMessage(ChatColor.DARK_RED + args[0] + " is not online");
+            callingPlayer.sendMessage(data.cfg.formatError(args[0] + " is not online"));
             return true;
         }
         // a player cannot challenge a player who has already challenged them
         if (Duel.bothInvolved(data.queuedDuels, callingPlayer, challengedPlayer)) {
-            callingPlayer.sendMessage(ChatColor.DARK_RED + "There is already a duel offer between you and " + challengedPlayer.getDisplayName());
+            callingPlayer.sendMessage(data.cfg.formatError("There is already a duel offer between you and " + challengedPlayer.getDisplayName()));
             return true;
         }
         // if everything has gone right, we tell the challenged player that they have been offered a duel
         // only if they are not muting messages, though!
         if (!data.mutingPlayers.contains(challengedPlayer)) {
-            challengedPlayer.sendMessage(ChatColor.BOLD + "" + ChatColor.DARK_RED + callingPlayer.getDisplayName() + " offers you a duel!");
-            challengedPlayer.sendMessage(ChatColor.GREEN + "Accept their request with /acceptduel or /aduel");
+            challengedPlayer.sendMessage(data.cfg.formatReceivedOffer(callingPlayer.getDisplayName() + " offers you a duel!"));
+            if (data.cfg.isInfoEnabled()) {
+                challengedPlayer.sendMessage(data.cfg.formatInfo("Accept their request with /acceptduel or /aduel"));
+            }
         }
         // some feedback for the sender
-        callingPlayer.sendMessage(ChatColor.BOLD + "" + ChatColor.DARK_RED + "You have challenged " + challengedPlayer.getDisplayName() + " to a duel!");
+        callingPlayer.sendMessage(data.cfg.formatSentOffer("You have challenged " + challengedPlayer.getDisplayName() + " to a duel!"));
         // we also add a new duel to the list
-        data.queuedDuels.add(new Duel(callingPlayer, challengedPlayer));
+        data.queuedDuels.add(new Duel(callingPlayer, challengedPlayer, data));
         return true;
     }
 
