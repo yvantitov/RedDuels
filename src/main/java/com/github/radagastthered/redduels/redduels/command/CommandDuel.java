@@ -1,9 +1,9 @@
 package com.github.radagastthered.redduels.redduels.command;
 
+import com.github.radagastthered.redduels.redduels.object.DuelType;
 import com.github.radagastthered.redduels.redduels.object.SharedData;
 import com.github.radagastthered.redduels.redduels.object.Duel;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -62,18 +62,38 @@ public class CommandDuel implements CommandExecutor {
             callingPlayer.sendMessage(data.cfg.formatError("There is already a duel offer between you and " + challengedPlayer.getDisplayName()));
             return true;
         }
+        DuelType duelType;
+        // grab a duel type, if one has been provided
+        // we use the 'Default' type if none has been provided
+        if (args.length >= 2) {
+            duelType = Duel.getDuelType(data, args[1]);
+            if (duelType == null) {
+                callingPlayer.sendMessage(data.cfg.formatError(args[1] + " is not a valid duel type"));
+                return true;
+            }
+        } else {
+            duelType = Duel.getDuelType(data, "Default");
+        }
+        // ensure they have a permission, if one is required
+        if (duelType.permission != null) {
+            if (!callingPlayer.hasPermission(duelType.permission)) {
+                callingPlayer.sendMessage(data.cfg.formatError("You are not allowed to fight this kind of duel"));
+                return true;
+            }
+        }
         // if everything has gone right, we tell the challenged player that they have been offered a duel
         // only if they are not muting messages, though!
         if (!data.mutingPlayers.contains(challengedPlayer)) {
             challengedPlayer.sendMessage(data.cfg.formatReceivedOffer(callingPlayer.getDisplayName() + " offers you a duel!"));
+            challengedPlayer.sendMessage(data.cfg.formatInfo("Type: " + duelType.name + " - " + duelType.description, false));
             if (data.cfg.isInfoEnabled()) {
-                challengedPlayer.sendMessage(data.cfg.formatInfo("Accept their request with /acceptduel or /aduel"));
+                challengedPlayer.sendMessage(data.cfg.formatInfo("Accept their request with /acceptduel or /aduel", false));
             }
         }
         // some feedback for the sender
         callingPlayer.sendMessage(data.cfg.formatSentOffer("You have challenged " + challengedPlayer.getDisplayName() + " to a duel!"));
         // we also add a new duel to the list
-        data.queuedDuels.add(new Duel(callingPlayer, challengedPlayer, data));
+        data.queuedDuels.add(new Duel(callingPlayer, challengedPlayer, duelType, data));
         return true;
     }
 

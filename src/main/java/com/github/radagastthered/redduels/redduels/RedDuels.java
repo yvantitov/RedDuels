@@ -2,6 +2,7 @@ package com.github.radagastthered.redduels.redduels;
 
 import com.github.radagastthered.redduels.redduels.command.CommandAcceptDuel;
 import com.github.radagastthered.redduels.redduels.command.CommandDuel;
+import com.github.radagastthered.redduels.redduels.command.CommandDuelTypes;
 import com.github.radagastthered.redduels.redduels.command.CommandMuteDuel;
 import com.github.radagastthered.redduels.redduels.listener.CleanUpListener;
 import com.github.radagastthered.redduels.redduels.object.SharedData;
@@ -30,6 +31,7 @@ public final class RedDuels extends JavaPlugin {
         this.getCommand("duel").setExecutor(new CommandDuel(sharedData));
         this.getCommand("acceptduel").setExecutor(new CommandAcceptDuel(sharedData));
         this.getCommand("muteduel").setExecutor(new CommandMuteDuel(sharedData));
+        this.getCommand("dueltypes").setExecutor(new CommandDuelTypes(sharedData));
         // register listeners
         getServer().getPluginManager().registerEvents(new CleanUpListener(sharedData), this);
     }

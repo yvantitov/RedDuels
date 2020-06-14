@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -100,6 +101,16 @@ public class RedDuelsConfig {
             // get the DuelType's arena world
             duelType.worldName = config.getString("DuelTypes." + key + ".World");
             logger.info("[RedDuels] Assigned world " + duelType.worldName + " to DuelType " + duelType.name);
+            // if a permission is required to use this duel type, register it
+            if (config.getBoolean("DuelTypes." + key + ".RequirePermission")) {
+                Permission p = new Permission("redduels.dueltype." + duelType.name.toLowerCase());
+                p.addParent("redduels.dueltype.*", true);
+                Bukkit.getPluginManager().addPermission(p);
+                duelType.permission = p;
+                logger.info("[RedDuels] Registered new permission " + p.getName());
+            }
+            // get the description
+            duelType.description = config.getString("DuelTypes." + key + ".Description");
             // get the DuelType's player spawn locations
             int player1X = config.getInt("DuelTypes." + key + ".Player1Spawn.X");
             int player1Y = config.getInt("DuelTypes." + key + ".Player1Spawn.Y");
@@ -131,14 +142,19 @@ public class RedDuelsConfig {
     // iterate through items under a YAML key and stick them into an array
     private ItemStack[] parseItems(ConfigurationSection cfgSection) {
         ArrayList<ItemStack> items = new ArrayList<ItemStack>();
-        Iterator i = cfgSection.getKeys(false).iterator();
-        while (i.hasNext()) {
-            String itemKey = (String) i.next();
-            int itemNum = cfgSection.getInt(itemKey + ".Number");
-            ItemStack item = new ItemStack(Material.getMaterial(itemKey), itemNum);
-            logger.info("[RedDuels] Found item: " + itemKey);
-            // TODO: Add enchantment support
-            items.add(item);
+        // if there are no items this will throw an NPE
+        try {
+            Iterator i = cfgSection.getKeys(false).iterator();
+            while (i.hasNext()) {
+                String itemKey = (String) i.next();
+                int itemNum = cfgSection.getInt(itemKey + ".Number");
+                ItemStack item = new ItemStack(Material.getMaterial(itemKey), itemNum);
+                logger.info("[RedDuels] Found item: " + itemKey);
+                // TODO: Add enchantment support
+                items.add(item);
+            }
+        } catch (NullPointerException e) {
+            logger.info("[RedDuels] No items detected for DuelType");
         }
         return items.toArray(new ItemStack[items.size()]);
     }
@@ -147,19 +163,24 @@ public class RedDuelsConfig {
     // this is special because armor has to be arranged in a funky way
     private ItemStack[] parseArmor(ConfigurationSection cfgSection) {
         ItemStack[] items = new ItemStack[4];
-        Iterator i = cfgSection.getKeys(false).iterator();
-        while (i.hasNext()) {
-            String itemKey = (String) i.next();
-            int itemNum = cfgSection.getInt(itemKey + ".Number");
-            ItemStack item = new ItemStack(Material.getMaterial(itemKey), itemNum);
-            logger.info("[RedDuels] Found item: " + itemKey);
-            // TODO: Add enchantment support
-            if (itemKey.contains("BOOTS")) items[0] = item;
-            if (itemKey.contains("LEGGINGS")) items[1] = item;
-            if (itemKey.contains("CHESTPLATE") || itemKey.equals("ELYTRA")) items[2] = item;
-            if (itemKey.contains("HELMET")) items[3] = item;
+        // if there are no items this will throw an NPE
+        try {
+            Iterator i = cfgSection.getKeys(false).iterator();
+            while (i.hasNext()) {
+                String itemKey = (String) i.next();
+                int itemNum = cfgSection.getInt(itemKey + ".Number");
+                ItemStack item = new ItemStack(Material.getMaterial(itemKey), itemNum);
+                logger.info("[RedDuels] Found item: " + itemKey);
+                // TODO: Add enchantment support
+                if (itemKey.contains("BOOTS")) items[0] = item;
+                if (itemKey.contains("LEGGINGS")) items[1] = item;
+                if (itemKey.contains("CHESTPLATE") || itemKey.equals("ELYTRA")) items[2] = item;
+                if (itemKey.contains("HELMET")) items[3] = item;
+            }
+        } catch (NullPointerException e) {
+            logger.info("[RedDuels] No armor detected for DuelType");
         }
-        return items;
+            return items;
     }
 
     public static RedDuelsConfig getInstance(Plugin plugin) {
@@ -219,6 +240,20 @@ public class RedDuelsConfig {
         msgOut += infoColor;
         msgOut += msg;
         return addChatTagIfEnabled(msgOut);
+    }
+
+    /*
+    Returns a formatted info message - with or without a chat tag
+    */
+    public String formatInfo(String msg, boolean chatTag) {
+        String msgOut = infoBold ? ChatColor.BOLD + "" : "";
+        msgOut += infoColor;
+        msgOut += msg;
+        if (chatTag) {
+            return addChatTagIfEnabled(msgOut);
+        } else {
+            return msgOut;
+        }
     }
 
     /*

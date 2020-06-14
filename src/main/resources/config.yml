@@ -5,6 +5,8 @@
 DuelTypes:
   Default:
     World: 'Arena2'
+    RequirePermission: false
+    Description: 'Full diamond gear and a bow'
     Player1Spawn:
       X: 6
       Y: 5
@@ -34,6 +36,32 @@ DuelTypes:
          Number: 1
        DIAMOND_HELMET:
          Number: 1
+  Broke:
+    World: 'Arena2'
+    RequirePermission: true
+    Description: 'A broke duel for broke players'
+    Player1Spawn:
+      X: 6
+      Y: 5
+      Z: 0
+    Player2Spawn:
+      X: -8
+      Y: 5
+      Z: 0
+    Items:
+      WOODEN_AXE:
+        Number: 1
+      TOTEM_OF_UNDYING:
+        Number: 3
+    Armor:
+      LEATHER_HELMET:
+        Number: 1
+      LEATHER_CHESTPLATE:
+        Number: 1
+      LEATHER_LEGGINGS:
+        Number: 1
+      LEATHER_BOOTS:
+        Number: 1
 
 # MESSAGE CONFIGURATION
 # The tag that appears in chat when RedDuels-related messages are sent

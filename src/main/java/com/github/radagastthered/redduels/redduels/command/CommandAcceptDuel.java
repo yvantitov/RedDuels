@@ -49,9 +49,8 @@ public class CommandAcceptDuel implements CommandExecutor {
         }
         // if there are no challenges for this player, inform them
         if (callingPlayers.size() == 0) {
-            challengedPlayer.sendMessage(data.cfg.formatError("Nobody has challenged you to a duel. Challenge others with: "));
-            // returning false here will output usage to the chat
-            return false;
+            challengedPlayer.sendMessage(data.cfg.formatError("Nobody has challenged you to a duel. Challenge others with /duel"));
+            return true;
         }
         // if two or more duels challenging this player exist, we must grab their arguments
         Player callingPlayer = null;
@@ -89,8 +88,7 @@ public class CommandAcceptDuel implements CommandExecutor {
             // debugging
             logger.info("Duel started between " + duel.getCallingPlayer().getDisplayName() + " and " + duel.getChallengedPlayer().getDisplayName());
             // begin the duel!
-            // TODO: get a dueltype from a command rather than hard-coded
-            duel.beginDuel(data.cfg.duelTypes.get(0));
+            duel.beginDuel();
         }
         return true;
     }

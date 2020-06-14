@@ -21,9 +21,10 @@ public class Duel {
     private long timeCreated;
     private Player callingPlayer;
     private Player challengedPlayer;
-    private Player victor = null;
-    private Player loser = null;
+    public Player victor = null;
+    public Player loser = null;
     private boolean accepted = false;
+    private DuelType duelType;
 
     // the shared data object that coordinates all RedDuels objects
     private SharedData data;
@@ -40,7 +41,8 @@ public class Duel {
     Duels have two players involved
     A SharedData object is also passed in so that the duel object can keep track of information more easily
      */
-    public Duel (Player callingPlayer, Player challengedPlayer, SharedData data) {
+    public Duel (Player callingPlayer, Player challengedPlayer, DuelType duelType, SharedData data) {
+        this.duelType = duelType;
         this.data = data;
         this.timeCreated = System.currentTimeMillis();
         this.callingPlayer = callingPlayer;
@@ -65,7 +67,7 @@ public class Duel {
     }
 
     // handles beginning the duel
-    public void beginDuel(DuelType duelType) {
+    public void beginDuel() {
         // instantiates the new world
         WorldCreator wc = new WorldCreator(duelType.worldName);
         world = wc.createWorld();
@@ -132,7 +134,7 @@ public class Duel {
     /*
     Ends a duel
      */
-    private void endDuel() {
+    public void endDuel() {
         // if this method has been called and the victor is null, something terrible has happened
         if (victor != null) {
             // restore player states
@@ -150,6 +152,16 @@ public class Duel {
             data.ongoingDuels.remove(this);
             data.resolvedDuels.add(this);
         }
+    }
+
+    // utility method for grabbing a specific duel type
+    public static DuelType getDuelType(SharedData data, String duelTypeName) {
+        for (DuelType d : data.cfg.duelTypes) {
+            if (d.name.equalsIgnoreCase(duelTypeName)) {
+                return d;
+            }
+        }
+        return null;
     }
 
     // utility method for removing expired duels
