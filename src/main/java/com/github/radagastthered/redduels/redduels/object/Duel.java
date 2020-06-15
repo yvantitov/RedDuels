@@ -1,5 +1,7 @@
 package com.github.radagastthered.redduels.redduels.object;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
@@ -13,8 +15,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class Duel {
 
@@ -99,6 +103,13 @@ public class Duel {
         // feed the players
         callingPlayer.setFoodLevel(20);
         challengedPlayer.setFoodLevel(20);
+        // remove potion effects
+        for (PotionEffect e : callingPlayer.getActivePotionEffects()) {
+            callingPlayer.removePotionEffect(e.getType());
+        }
+        for (PotionEffect e : challengedPlayer.getActivePotionEffects()) {
+            challengedPlayer.removePotionEffect(e.getType());
+        }
         // teleport the players in
         int[] a = duelType.player1SpawnLocation;
         int[] b = duelType.player2SpawnLocation;
@@ -118,6 +129,13 @@ public class Duel {
         callingPlayerBossBar.addPlayer(challengedPlayer);
         BossBar challengedPlayerBossBar = Bukkit.createBossBar(challengedPlayer.getDisplayName(), BarColor.RED, BarStyle.SOLID);
         challengedPlayerBossBar.addPlayer(callingPlayer);
+        // TODO: Add configurable titles and sounds
+        // send both players a cool title message
+        callingPlayer.sendTitle(ChatColor.DARK_RED + "Prepare to fight!", "", 10, 70, 20);
+        challengedPlayer.sendTitle(ChatColor.DARK_RED + "Prepare to fight!", "", 10, 70, 20);
+        // play a cool sound ;)
+        callingPlayer.playEffect(callingPlayer.getLocation(), Effect.ENDERDRAGON_GROWL, null);
+        challengedPlayer.playEffect(challengedPlayer.getLocation(), Effect.ENDERDRAGON_GROWL, null);
         // listeners
         data.plugin.getServer().getPluginManager().registerEvents(new Listener() {
             /*
@@ -133,14 +151,14 @@ public class Duel {
                         double finalDamage = event.getFinalDamage();
                         // update the boss bar situation
                         if (player == callingPlayer) {
-                            callingPlayerBossBar.setProgress(Math.max((callingPlayer.getHealth() - finalDamage)
-                                    / callingPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0));
+                            callingPlayerBossBar.setProgress(Math.min(Math.max((callingPlayer.getHealth() - finalDamage)
+                                    / callingPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0), 1));
                         } else {
-                            challengedPlayerBossBar.setProgress(Math.max((challengedPlayer.getHealth() - finalDamage)
-                                    / challengedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0));
+                            challengedPlayerBossBar.setProgress(Math.min(Math.max((challengedPlayer.getHealth() - finalDamage)
+                                    / challengedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0), 1));
                         }
                         // check if they are about to die
-                        if (player.getHealth() - finalDamage < 0) {
+                        if (player.getHealth() - finalDamage <= 0.0d) {
                             // ensure they have no totem of undying and are not dying from the void
                             if (player.getInventory().getItemInOffHand().getType() == Material.TOTEM_OF_UNDYING
                                     && !event.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
@@ -168,12 +186,12 @@ public class Duel {
                     Player player = (Player) event.getEntity();
                     // do stuff if it is someone we are interested in
                     if (player == callingPlayer) {
-                        callingPlayerBossBar.setProgress(Math.max((callingPlayer.getHealth() + event.getAmount())
-                                / callingPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0));
+                        callingPlayerBossBar.setProgress(Math.min(Math.max((callingPlayer.getHealth() + event.getAmount())
+                                / callingPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0), 1));
                     }
                     if (player == challengedPlayer) {
-                        challengedPlayerBossBar.setProgress(Math.max((challengedPlayer.getHealth() + event.getAmount())
-                                / challengedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0));
+                        challengedPlayerBossBar.setProgress(Math.min(Math.max((challengedPlayer.getHealth() + event.getAmount())
+                                / challengedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0), 1));
                     }
                 }
             }

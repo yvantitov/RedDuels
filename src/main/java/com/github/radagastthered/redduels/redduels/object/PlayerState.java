@@ -4,7 +4,10 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
 
 /*
 Stores the state of a player at a point in time
@@ -13,6 +16,7 @@ Can restore the player to their previous state
 public class PlayerState {
 
     private Player player;
+    private ArrayList<PotionEffect> potionEffects = new ArrayList<>();
     private Location location;
     private Vector velocity;
     private float fallDistance;
@@ -35,6 +39,8 @@ public class PlayerState {
         foodLevel = player.getFoodLevel();
         inventoryContents = player.getInventory().getContents();
         inventoryArmorContents = player.getInventory().getArmorContents();
+        // store potion effects
+        potionEffects.addAll(player.getActivePotionEffects());
     }
 
     // restores everything about the player to their previous state
@@ -48,5 +54,9 @@ public class PlayerState {
         player.setFoodLevel(foodLevel);
         player.getInventory().setContents(inventoryContents);
         player.getInventory().setArmorContents(inventoryArmorContents);
+        // restore potion effects
+        for (PotionEffect e : potionEffects) {
+            player.addPotionEffect(e);
+        }
     }
 }
