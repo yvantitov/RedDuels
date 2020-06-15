@@ -32,13 +32,18 @@ public class CommandAcceptDuel implements CommandExecutor {
             return false;
         }
         // cast the sender to player
-        Player callingPlayer = (Player) sender;
+        Player challengedPlayer = (Player) sender;
         // ensure the sender is not involved in an active duel already
-        if (Duel.involvedInDuel(data.ongoingDuels, callingPlayer)) {
-            callingPlayer.sendMessage(data.cfg.formatError("You are already in an ongoing duel"));
+        if (Duel.involvedInDuel(data.ongoingDuels, challengedPlayer)) {
+            challengedPlayer.sendMessage(data.cfg.formatError("You are already in an ongoing duel"));
             return true;
         }
-        return acceptDuel(callingPlayer, args);
+        // ensure they have the appropriate permission
+        if (!challengedPlayer.hasPermission("redduels.accept")) {
+            challengedPlayer.sendMessage(data.cfg.formatError("You cannot accept duel requests"));
+            return true;
+        }
+        return acceptDuel(challengedPlayer, args);
     }
 
     private boolean acceptDuel(Player challengedPlayer, String[] args) {

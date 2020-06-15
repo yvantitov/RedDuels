@@ -141,6 +141,11 @@ public class Duel {
                         }
                         // check if they are about to die
                         if (player.getHealth() - finalDamage < 0) {
+                            // ensure they have no totem of undying and are not dying from the void
+                            if (player.getInventory().getItemInOffHand().getType() == Material.TOTEM_OF_UNDYING
+                                    && !event.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
+                                return;
+                            }
                             // end the duel
                             loser = player;
                             victor = loser == callingPlayer ? challengedPlayer : callingPlayer;
@@ -172,6 +177,10 @@ public class Duel {
                     }
                 }
             }
+            /*
+            This listener handles a player death
+            Under normal circumstances, this should NOT happen - but if it does, it needs to be cleaned up as well as possible
+             */
         }, data.plugin);
     }
 

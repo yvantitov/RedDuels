@@ -36,6 +36,11 @@ public class CommandDuel implements CommandExecutor {
             callingPlayer.sendMessage(data.cfg.formatError("You are already in an ongoing duel"));
             return true;
         }
+        // ensure they have the appropriate permission
+        if (!callingPlayer.hasPermission("redduels.challenge")) {
+            callingPlayer.sendMessage(data.cfg.formatError("You cannot send duel offers"));
+            return true;
+        }
         // initiates a duel
         return startDuel(callingPlayer, args);
     }
@@ -55,6 +60,11 @@ public class CommandDuel implements CommandExecutor {
         Player challengedPlayer = Bukkit.getPlayer(args[0]);
         if (challengedPlayer == null) {
             callingPlayer.sendMessage(data.cfg.formatError(args[0] + " is not online"));
+            return true;
+        }
+        // the challenged player must have the accept duels permission
+        if (!challengedPlayer.hasPermission("redduels.accept")) {
+            callingPlayer.sendMessage(data.cfg.formatError(challengedPlayer.getDisplayName() + " cannot accept duel offers"));
             return true;
         }
         // a player cannot challenge a player who has already challenged them
