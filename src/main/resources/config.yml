@@ -19,27 +19,37 @@ DuelTypes:
       DIAMOND_SWORD:
         Number: 1
         Enchantments:
-          KNOCKBACK: 3
-          DAMAGE_ALL: 4
+          KNOCKBACK: 2
+          SHARPNESS: 5
       BOW:
         Number: 1
         Enchantments:
-          ARROW_FIRE: 2
+          PUNCH: 2
       ARROW:
         Number: 32
+      COOKED_SALMON:
+        Number: 22
     Armor:
-       DIAMOND_BOOTS:
-         Number: 1
-       DIAMOND_LEGGINGS:
-         Number: 1
-       DIAMOND_CHESTPLATE:
-         Number: 1
-       DIAMOND_HELMET:
-         Number: 1
-  Broke:
+      DIAMOND_BOOTS:
+        Enchantments:
+          PROTECTION: 4
+        Number: 1
+      DIAMOND_LEGGINGS:
+        Enchantments:
+          PROTECTION: 4
+        Number: 1
+      DIAMOND_CHESTPLATE:
+        Enchantments:
+          PROTECTION: 4
+        Number: 1
+      DIAMOND_HELMET:
+        Enchantments:
+          PROTECTION: 4
+        Number: 1
+  Naked:
     World: 'Arena2'
     RequirePermission: true
-    Description: 'A broke duel for broke players'
+    Description: 'A naked duel for nudist players'
     Player1Spawn:
       X: 6
       Y: 5
@@ -49,19 +59,7 @@ DuelTypes:
       Y: 5
       Z: 0
     Items:
-      WOODEN_AXE:
-        Number: 1
-      TOTEM_OF_UNDYING:
-        Number: 3
     Armor:
-      LEATHER_HELMET:
-        Number: 1
-      LEATHER_CHESTPLATE:
-        Number: 1
-      LEATHER_LEGGINGS:
-        Number: 1
-      LEATHER_BOOTS:
-        Number: 1
 
 # MESSAGE CONFIGURATION
 # The tag that appears in chat when RedDuels-related messages are sent

@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.ArrayList;
@@ -119,6 +120,9 @@ public class Duel {
         challengedPlayerBossBar.addPlayer(callingPlayer);
         // listeners
         data.plugin.getServer().getPluginManager().registerEvents(new Listener() {
+            /*
+            Ending the duel when enough damage is sustained
+             */
             @EventHandler
             public void onEntityDamage(EntityDamageEvent event) {
                 // only listen for players getting hurt
@@ -126,14 +130,17 @@ public class Duel {
                     Player player = (Player) event.getEntity();
                     // check if it's a player we are interested in
                     if (player == callingPlayer || player == challengedPlayer) {
+                        double finalDamage = event.getFinalDamage();
                         // update the boss bar situation
                         if (player == callingPlayer) {
-                            callingPlayerBossBar.setProgress(callingPlayer.getHealth() / callingPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                            callingPlayerBossBar.setProgress(Math.max((callingPlayer.getHealth() - finalDamage)
+                                    / callingPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0));
                         } else {
-                            challengedPlayerBossBar.setProgress(challengedPlayer.getHealth() / challengedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                            challengedPlayerBossBar.setProgress(Math.max((challengedPlayer.getHealth() - finalDamage)
+                                    / challengedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0));
                         }
                         // check if they are about to die
-                        if (player.getHealth() - event.getDamage() < 1) {
+                        if (player.getHealth() - finalDamage < 0) {
                             // end the duel
                             loser = player;
                             victor = loser == callingPlayer ? challengedPlayer : callingPlayer;
@@ -143,6 +150,25 @@ public class Duel {
                             endDuel();
                             event.setCancelled(true);
                         }
+                    }
+                }
+            }
+            /*
+            Updating BossBars when players regain health
+             */
+            @EventHandler
+            public void onEntityRegainHealth(EntityRegainHealthEvent event) {
+                // only listen for players
+                if (event.getEntity() instanceof Player) {
+                    Player player = (Player) event.getEntity();
+                    // do stuff if it is someone we are interested in
+                    if (player == callingPlayer) {
+                        callingPlayerBossBar.setProgress(Math.max((callingPlayer.getHealth() + event.getAmount())
+                                / callingPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0));
+                    }
+                    if (player == challengedPlayer) {
+                        challengedPlayerBossBar.setProgress(Math.max((challengedPlayer.getHealth() + event.getAmount())
+                                / challengedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), 0));
                     }
                 }
             }

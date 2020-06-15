@@ -4,14 +4,18 @@ import com.github.radagastthered.redduels.redduels.object.DuelType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /*
@@ -150,7 +154,7 @@ public class RedDuelsConfig {
                 int itemNum = cfgSection.getInt(itemKey + ".Number");
                 ItemStack item = new ItemStack(Material.getMaterial(itemKey), itemNum);
                 logger.info("[RedDuels] Found item: " + itemKey);
-                // TODO: Add enchantment support
+                parseEnchantments(itemKey, item, cfgSection);
                 items.add(item);
             }
         } catch (NullPointerException e) {
@@ -171,7 +175,7 @@ public class RedDuelsConfig {
                 int itemNum = cfgSection.getInt(itemKey + ".Number");
                 ItemStack item = new ItemStack(Material.getMaterial(itemKey), itemNum);
                 logger.info("[RedDuels] Found item: " + itemKey);
-                // TODO: Add enchantment support
+                parseEnchantments(itemKey, item, cfgSection);
                 if (itemKey.contains("BOOTS")) items[0] = item;
                 if (itemKey.contains("LEGGINGS")) items[1] = item;
                 if (itemKey.contains("CHESTPLATE") || itemKey.equals("ELYTRA")) items[2] = item;
@@ -181,6 +185,34 @@ public class RedDuelsConfig {
             logger.info("[RedDuels] No armor detected for DuelType");
         }
             return items;
+    }
+
+    /**
+     * Applies enchantments in a given ConfigurationSection to an ItemStack
+     *
+     * @param itemKey The ItemKey associated with the given item
+     * @param item The ItemStack that enchantments will be applied to
+     * @param cfgSection The ConfigurationSection associated with the given ItemStack
+     */
+    private void parseEnchantments(String itemKey, ItemStack item, ConfigurationSection cfgSection) {
+        try {
+            ConfigurationSection enchantmentsSection = cfgSection.getConfigurationSection(itemKey + ".Enchantments");
+            Map<Enchantment, Integer> enchantments = new HashMap<>();
+            Iterator i = enchantmentsSection.getKeys(false).iterator();
+            while (i.hasNext()) {
+                String enchantmentName = (String) i.next();
+                logger.info("[RedDuels] Found enchantment " + enchantmentName + " for item " + itemKey);
+                int enchantmentLevel = enchantmentsSection.getInt(enchantmentName);
+                // enchantments should be taken by key because they are badly named
+                NamespacedKey enchantmentKey = NamespacedKey.minecraft(enchantmentName.toLowerCase());
+                Enchantment enchantment = Enchantment.getByKey(enchantmentKey);
+                enchantments.put(enchantment, enchantmentLevel);
+            }
+            // add the enchantments to the item
+            item.addEnchantments(enchantments);
+        } catch (NullPointerException e) {
+            logger.info("[RedDuels] No enchantments found for item " + item.getType().toString() + " in DuelType");
+        }
     }
 
     public static RedDuelsConfig getInstance(Plugin plugin) {
